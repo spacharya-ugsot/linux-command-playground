@@ -1449,6 +1449,291 @@ footer {
     font-weight: 700;
 }
 
+/* ==========================================================================
+   Tour Launcher & Welcome Popup Modal
+   ========================================================================== */
+.tour-launcher-btn {
+    border-color: #d8c2f2;
+    color: #793ea8;
+    background: #faf6fd;
+    font-weight: 800;
+}
+
+.tour-launcher-btn:hover {
+    background: #f2e6fa;
+    border-color: #c499ea;
+}
+
+.welcome-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.welcome-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(12, 16, 26, 0.72);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    animation: welcome-fade-in 0.25s ease-out;
+}
+
+.welcome-modal-card {
+    position: relative;
+    background: #fff;
+    border: 1px solid #e1e6f0;
+    border-radius: 18px;
+    padding: 32px 28px 28px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 24px 60px rgba(17, 24, 39, 0.25), 0 0 0 1px rgba(142, 72, 198, 0.1);
+    animation: welcome-pop-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes welcome-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes welcome-pop-in {
+    from {
+        opacity: 0;
+        transform: scale(0.92) translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.welcome-modal-icon {
+    font-size: 38px;
+    margin-bottom: 12px;
+    display: inline-block;
+    animation: welcome-bounce 1.5s ease infinite alternate;
+}
+
+@keyframes welcome-bounce {
+    from { transform: translateY(0); }
+    to { transform: translateY(-6px); }
+}
+
+.welcome-modal-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 850;
+    letter-spacing: 0.08em;
+    color: #833ec9;
+    background: #f4ecfc;
+    border: 1px solid #ebd9fa;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+}
+
+.welcome-modal-card h3 {
+    margin: 0 0 10px;
+    font-size: 22px;
+    color: #172033;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+}
+
+.welcome-modal-card p {
+    margin: 0 0 24px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: #616c82;
+}
+
+.welcome-modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.welcome-btn {
+    flex: 1;
+    padding: 11px 16px;
+    font-size: 12px;
+    min-height: 42px;
+    border-radius: 10px;
+}
+
+/* ==========================================================================
+   Interactive Guided Tour Overlay & Spotlight
+   ========================================================================== */
+.tour-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9990;
+    pointer-events: auto;
+}
+
+.tour-backdrop {
+    position: fixed;
+    inset: 0;
+    background: transparent;
+}
+
+body.tour-active-locked {
+    touch-action: none !important;
+    overscroll-behavior: none !important;
+}
+
+.tour-spotlight {
+    position: fixed;
+    border-radius: 12px;
+    box-shadow: 0 0 0 9999px rgba(15, 20, 32, 0.72), 0 0 25px rgba(142, 72, 198, 0.7);
+    border: 2px solid #9c54db;
+    pointer-events: none;
+    transition: top 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+                left 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+                width 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+                height 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+    z-index: 9991;
+    animation: spotlight-pulse 2s infinite alternate ease-in-out;
+}
+
+@keyframes spotlight-pulse {
+    0% {
+        border-color: #9c54db;
+        box-shadow: 0 0 0 9999px rgba(15, 20, 32, 0.72), 0 0 20px rgba(142, 72, 198, 0.5);
+    }
+    100% {
+        border-color: #4ed89d;
+        box-shadow: 0 0 0 9999px rgba(15, 20, 32, 0.75), 0 0 28px rgba(78, 216, 157, 0.6);
+    }
+}
+
+.tour-card {
+    position: fixed;
+    width: 380px;
+    max-width: calc(100vw - 32px);
+    background: #fff;
+    border: 1px solid #d9bfef;
+    border-radius: 16px;
+    padding: 18px 20px 16px;
+    box-shadow: 0 20px 48px rgba(10, 15, 28, 0.38), 0 0 0 1px rgba(142, 72, 198, 0.15);
+    z-index: 9995;
+    transition: top 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+                left 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+                opacity 0.2s ease;
+    animation: tour-card-enter 0.25s ease-out;
+}
+
+@keyframes tour-card-enter {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tour-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.tour-step-badge {
+    font-size: 10px;
+    font-weight: 850;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #793ea8;
+    background: #f6eefc;
+    border: 1px solid #ebd8f8;
+    padding: 3px 9px;
+    border-radius: 999px;
+}
+
+.tour-close-btn {
+    background: transparent;
+    border: 0;
+    font-size: 20px;
+    color: #7b8595;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 4px;
+    border-radius: 6px;
+    touch-action: manipulation;
+}
+
+.tour-close-btn:hover {
+    color: #172033;
+    background: #f1f3f8;
+}
+
+.tour-title {
+    margin: 0 0 6px;
+    font-size: 15px;
+    color: #172033;
+    font-weight: 800;
+}
+
+.tour-text {
+    margin: 0 0 14px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #556073;
+}
+
+.tour-dots {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    margin-bottom: 14px;
+}
+
+.tour-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #e2e7f0;
+    transition: all 0.2s ease;
+}
+
+.tour-dot.active {
+    width: 18px;
+    border-radius: 999px;
+    background: #8e48c6;
+}
+
+.tour-card-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #f0f2f7;
+    padding-top: 12px;
+}
+
+.tour-skip-btn {
+    padding: 6px 10px;
+    font-size: 11px;
+    color: #7b8595;
+}
+
+.tour-nav-group {
+    display: flex;
+    gap: 6px;
+}
+
+.tour-nav-btn {
+    padding: 7px 12px;
+    font-size: 11px;
+    min-height: 34px;
+}
 
 /* ==========================================================================
    Comprehensive Responsive & Mobile Optimization (Media Queries)
@@ -1996,6 +2281,18 @@ footer {
         overflow-y: auto;
         flex: 1;
     }
+
+    .tour-card {
+        position: fixed !important;
+        bottom: 14px !important;
+        left: 14px !important;
+        right: 14px !important;
+        top: auto !important;
+        width: auto !important;
+        max-width: none !important;
+        border-radius: 14px;
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.38);
+    }
 }
 
 /* Mobile Phones (<= 480px) */
@@ -2394,6 +2691,41 @@ footer {
         max-height: 180px;
         font-size: 10px;
         padding: 10px;
+    }
+
+    .welcome-modal-card {
+        padding: 24px 18px 20px;
+        border-radius: 14px;
+    }
+
+    .welcome-modal-card h3 {
+        font-size: 18px;
+    }
+
+    .welcome-modal-card p {
+        font-size: 12px;
+        margin-bottom: 18px;
+    }
+
+    .welcome-modal-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .tour-card {
+        bottom: 10px !important;
+        left: 10px !important;
+        right: 10px !important;
+        padding: 14px 16px 12px;
+    }
+
+    .tour-title {
+        font-size: 14px;
+    }
+
+    .tour-text {
+        font-size: 11.5px;
+        margin-bottom: 10px;
     }
 
     footer {

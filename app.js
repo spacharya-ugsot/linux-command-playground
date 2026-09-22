@@ -2470,5 +2470,353 @@ window.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeFileModal();
 });
 
+// ==========================================================================
+// Interactive 9-Step Guided Walkthrough Tour
+// ==========================================================================
+
+const tourSteps = [
+  {
+    target: "#questionList",
+    stage: "learn",
+    title: "Question & Topic Sidebar (01 Learn)",
+    text: "Browse all 10 hands-on questions categorized under curriculum topics. Click on any question to load its tasks, command explanations, and verified solutions.",
+  },
+  {
+    target: "#questionDetail .detail-top",
+    stage: "learn",
+    title: "Question Details & Tasks (01 Learn)",
+    text: "Each exercise provides a real-world scenario with clear, step-by-step task bullet points telling you exactly what commands to run and what output to expect.",
+  },
+  {
+    target: "#questionDetail .solution-panel",
+    stage: "learn",
+    title: "Solutions & One-Click '▶ Run' Buttons",
+    text: "View verified solution commands and their effects. Click '▶ Run' on any individual step to test it immediately, or click '▶ Run all steps' to run the entire exercise automatically!",
+  },
+  {
+    target: ".terminal",
+    stage: "practice",
+    title: "Simulated Terminal (02 Practice)",
+    text: "This is your safe Linux CLI sandbox. Type real commands (e.g. ls, mkdir, chmod, apt), press Enter, and navigate command history with Up/Down arrow keys. Nothing on your computer is changed!",
+  },
+  {
+    target: "#questionFocusBanner",
+    stage: "practice",
+    title: "Dynamic Question Focus Banner",
+    text: "This banner dynamically adapts to each question, highlighting which Linux subsystem (Filesystem, Permissions, APT Packages, or Environment) is the primary focus of your current exercise.",
+  },
+  {
+    target: "#cardFilesystem",
+    stage: "practice",
+    title: "Linux Filesystem Tree (Visualizer)",
+    text: "Watch directories and files appear, move, or delete live as you type commands. Click on any file in the tree to open the File Inspector and view its metadata and contents!",
+  },
+  {
+    target: "#cardIdentity",
+    stage: "practice",
+    title: "Identity & Permission Decoder (Visualizer)",
+    text: "Track user/group ownership and file permissions in real-time. The built-in Octal & Symbolic Decoder breaks down permissions (like 755 to rwxr-xr-x) for Owner, Group, and Others.",
+  },
+  {
+    target: "#cardPackages",
+    stage: "practice",
+    title: "Packages & Environment Variables (Visualizer)",
+    text: "Track simulated APT package installations (such as Git and Curl) and live shell environment variables ($HOME, $USER, $PATH, and custom exports) as you modify them.",
+  },
+  {
+    target: ".stage-nav",
+    stage: "practice",
+    title: "Stage Tabs (01 Learn / 02 Practice / 03 Review)",
+    text: "Use these top tabs to switch between 01 Learn (read tasks & solutions), 02 Practice (interactive terminal & visualizer), and 03 Review (overall command coverage stats). You're ready to start!",
+  },
+];
+
+let tourState = {
+  active: false,
+  currentStep: 0,
+};
+
+function preventDefaultScroll(e) {
+  const tourCard = document.getElementById("tourCard");
+  if (tourCard && tourCard.contains(e.target)) return;
+  e.preventDefault();
+}
+
+function preventScrollKeys(e) {
+  if (["Space", "PageUp", "PageDown", "Home", "End"].includes(e.code)) {
+    e.preventDefault();
+  }
+  if (["ArrowUp", "ArrowDown"].includes(e.code) && e.target.tagName !== "INPUT") {
+    e.preventDefault();
+  }
+}
+
+function lockUserScroll() {
+  document.body.classList.add("tour-active-locked");
+  window.addEventListener("wheel", preventDefaultScroll, { passive: false });
+  window.addEventListener("touchmove", preventDefaultScroll, { passive: false });
+  window.addEventListener("keydown", preventScrollKeys, { passive: false });
+}
+
+function unlockUserScroll() {
+  document.body.classList.remove("tour-active-locked");
+  window.removeEventListener("wheel", preventDefaultScroll);
+  window.removeEventListener("touchmove", preventDefaultScroll);
+  window.removeEventListener("keydown", preventScrollKeys);
+}
+
+function startTour() {
+  tourState.active = true;
+  tourState.currentStep = 0;
+  const overlay = document.getElementById("tourOverlay");
+  if (overlay) overlay.style.display = "block";
+  lockUserScroll();
+  renderTourStep();
+}
+
+function updateSpotlightAndCard() {
+  if (!tourState.active) return;
+  const step = tourSteps[tourState.currentStep];
+  if (!step) return;
+
+  const targetEl = document.querySelector(step.target);
+  if (!targetEl) return;
+
+  const rect = targetEl.getBoundingClientRect();
+  const spotlight = document.getElementById("tourSpotlight");
+  const card = document.getElementById("tourCard");
+  if (!spotlight || !card) return;
+
+  const pad = 8;
+  spotlight.style.top = `${rect.top - pad}px`;
+  spotlight.style.left = `${rect.left - pad}px`;
+  spotlight.style.width = `${rect.width + pad * 2}px`;
+  spotlight.style.height = `${rect.height + pad * 2}px`;
+
+  // On mobile screens (<= 640px), dock cleanly to bottom
+  if (window.innerWidth <= 640) {
+    card.style.position = "fixed";
+    card.style.bottom = "12px";
+    card.style.left = "12px";
+    card.style.right = "12px";
+    card.style.top = "auto";
+    card.style.width = "auto";
+    return;
+  }
+
+  // On desktop / tablet (> 640px):
+  card.style.position = "fixed";
+  card.style.width = "380px";
+  card.style.right = "auto";
+  card.style.bottom = "auto";
+
+  const cardWidth = card.offsetWidth || 380;
+  const cardHeight = card.offsetHeight || 190;
+  const topbar = document.querySelector(".topbar");
+  const topbarH = topbar ? topbar.offsetHeight : 60;
+
+  // Default: Place ABOVE the target section
+  let cardTop = rect.top - cardHeight - 14;
+
+  // If placing above would collide with topbar or go off the top, place below
+  if (cardTop < topbarH + 8) {
+    cardTop = rect.bottom + 14;
+  }
+
+  // Ensure card does not overflow viewport bottom
+  if (cardTop + cardHeight > window.innerHeight - 12) {
+    cardTop = Math.max(topbarH + 8, window.innerHeight - cardHeight - 12);
+  }
+
+  // Horizontal positioning: center with target or align with target
+  let cardLeft = rect.left;
+  if (rect.width > cardWidth) {
+    cardLeft = rect.left + (rect.width - cardWidth) / 2;
+  }
+  // Clamp within viewport
+  const maxLeft = window.innerWidth - cardWidth - 16;
+  cardLeft = Math.max(16, Math.min(maxLeft, cardLeft));
+
+  card.style.top = `${cardTop}px`;
+  card.style.left = `${cardLeft}px`;
+}
+
+function renderTourStep() {
+  if (!tourState.active) return;
+  const step = tourSteps[tourState.currentStep];
+  if (!step) return;
+
+  // Switch stage if needed
+  if (state.stage !== step.stage) {
+    const stageBtn = document.querySelector(`.stage[data-stage="${step.stage}"]`);
+    if (stageBtn) stageBtn.click();
+  }
+
+  setTimeout(() => {
+    const targetEl = document.querySelector(step.target);
+    if (!targetEl) {
+      if (tourState.currentStep < tourSteps.length - 1) {
+        tourState.currentStep++;
+        renderTourStep();
+      }
+      return;
+    }
+
+    // Update Card Content immediately
+    const badgeEl = document.getElementById("tourBadge");
+    if (badgeEl) badgeEl.textContent = `Step ${tourState.currentStep + 1} of ${tourSteps.length}`;
+
+    const titleEl = document.getElementById("tourTitle");
+    if (titleEl) titleEl.textContent = step.title;
+
+    const textEl = document.getElementById("tourText");
+    if (textEl) textEl.textContent = step.text;
+
+    // Dots
+    const dotsEl = document.getElementById("tourDots");
+    if (dotsEl) {
+      dotsEl.innerHTML = tourSteps
+        .map((_, i) => `<span class="tour-dot ${i === tourState.currentStep ? "active" : ""}"></span>`)
+        .join("");
+    }
+
+    // Buttons
+    const prevBtn = document.getElementById("tourPrevBtn");
+    if (prevBtn) prevBtn.disabled = tourState.currentStep === 0;
+
+    const nextBtn = document.getElementById("tourNextBtn");
+    if (nextBtn) {
+      nextBtn.textContent = tourState.currentStep === tourSteps.length - 1 ? "Finish 🎉" : "Next →";
+    }
+
+    // Calculate viewport-aware target position so that BOTH the card (above) and target fit
+    const topbar = document.querySelector(".topbar");
+    const topbarH = topbar ? topbar.offsetHeight : 60;
+    const card = document.getElementById("tourCard");
+    const cardHeight = card ? (card.offsetHeight || 190) : 190;
+    const spaceAboveNeeded = topbarH + cardHeight + 24;
+
+    const elementAbsoluteTop = targetEl.getBoundingClientRect().top + window.scrollY;
+
+    // If target is near the top of the document (cannot scroll down enough to put card above)
+    if (elementAbsoluteTop < spaceAboveNeeded) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      // Scroll so target starts right below the card
+      const targetScrollY = elementAbsoluteTop - spaceAboveNeeded;
+      window.scrollTo({ top: Math.max(0, targetScrollY), behavior: "smooth" });
+    }
+
+    // Update positions during and after scroll
+    updateSpotlightAndCard();
+    setTimeout(updateSpotlightAndCard, 100);
+    setTimeout(updateSpotlightAndCard, 300);
+  }, 90);
+}
+
+function nextTourStep() {
+  if (tourState.currentStep < tourSteps.length - 1) {
+    tourState.currentStep++;
+    renderTourStep();
+  } else {
+    endTour();
+  }
+}
+
+function prevTourStep() {
+  if (tourState.currentStep > 0) {
+    tourState.currentStep--;
+    renderTourStep();
+  }
+}
+
+function endTour() {
+  tourState.active = false;
+  const overlay = document.getElementById("tourOverlay");
+  if (overlay) overlay.style.display = "none";
+  unlockUserScroll();
+  try {
+    localStorage.setItem("linux_playground_tour_seen", "true");
+  } catch (err) {}
+}
+
+function initTourAndWelcome() {
+  // Check if first-time user
+  let seen = false;
+  try {
+    seen = localStorage.getItem("linux_playground_tour_seen") === "true";
+  } catch (err) {}
+
+  const welcomeModal = document.getElementById("welcomeModal");
+  if (!seen && welcomeModal) {
+    welcomeModal.style.display = "flex";
+  }
+
+  // Welcome modal buttons
+  const welcomeYesBtn = document.getElementById("welcomeYesBtn");
+  if (welcomeYesBtn) {
+    welcomeYesBtn.onclick = () => {
+      if (welcomeModal) welcomeModal.style.display = "none";
+      try {
+        localStorage.setItem("linux_playground_tour_seen", "true");
+      } catch (err) {}
+      startTour();
+    };
+  }
+
+  const welcomeNoBtn = document.getElementById("welcomeNoBtn");
+  if (welcomeNoBtn) {
+    welcomeNoBtn.onclick = () => {
+      if (welcomeModal) welcomeModal.style.display = "none";
+      try {
+        localStorage.setItem("linux_playground_tour_seen", "true");
+      } catch (err) {}
+    };
+  }
+
+  const welcomeBackdrop = document.getElementById("welcomeModalBackdrop");
+  if (welcomeBackdrop) {
+    welcomeBackdrop.onclick = () => {
+      if (welcomeModal) welcomeModal.style.display = "none";
+      try {
+        localStorage.setItem("linux_playground_tour_seen", "true");
+      } catch (err) {}
+    };
+  }
+
+  // Tour controls
+  const nextBtn = document.getElementById("tourNextBtn");
+  if (nextBtn) nextBtn.onclick = nextTourStep;
+
+  const prevBtn = document.getElementById("tourPrevBtn");
+  if (prevBtn) prevBtn.onclick = prevTourStep;
+
+  const skipBtn = document.getElementById("tourSkipBtn");
+  if (skipBtn) skipBtn.onclick = endTour;
+
+  const closeBtn = document.getElementById("tourCloseBtn");
+  if (closeBtn) closeBtn.onclick = endTour;
+
+  const startTourBtn = document.getElementById("startTourBtn");
+  if (startTourBtn) startTourBtn.onclick = startTour;
+
+  // Keyboard navigation during tour
+  window.addEventListener("keydown", (e) => {
+    if (!tourState.active) return;
+    if (e.key === "ArrowRight" || e.key === "Enter") {
+      nextTourStep();
+    } else if (e.key === "ArrowLeft") {
+      prevTourStep();
+    } else if (e.key === "Escape") {
+      endTour();
+    }
+  });
+
+  // Keep spotlight and card aligned on scroll or resize
+  window.addEventListener("scroll", updateSpotlightAndCard, { passive: true });
+  window.addEventListener("resize", updateSpotlightAndCard, { passive: true });
+}
+
 // Initial startup
 resetState();
+initTourAndWelcome();
