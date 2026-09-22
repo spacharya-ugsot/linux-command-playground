@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Linux Command Playground</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">λ</div>
+      <div>
+        <h1>Linux Command Playground</h1>
+        <p>Practice commands • understand the effect • watch the Linux state change</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <span class="mode-pill"><span class="dot"></span> SIMULATED LINUX</span>
+      <button id="resetBtn" class="btn ghost">Reset Lab</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <div class="eyebrow">HANDS-ON VISUAL LAB</div>
+        <h2>Type Linux commands. <span>See what actually happens.</span></h2>
+        <p>Nothing on your computer is changed. Every file, user, permission, package and environment variable lives
+          inside this browser simulation.</p>
+      </div>
+      <div class="stage-nav">
+        <button class="stage active" data-stage="learn"><b>01</b><span>Learn</span></button>
+        <button class="stage" data-stage="practice"><b>02</b><span>Practice</span></button>
+        <button class="stage" data-stage="review"><b>03</b><span>Review</span></button>
+      </div>
+    </section>
+
+    <section id="learnStage" class="stage-panel active-panel">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">STAGE 01</div>
+          <h3>Questions & command explanations</h3>
+          <p>Choose a question. Read the goal, understand the commands, then copy them into the simulated terminal.</p>
+        </div>
+        <div class="question-counter" id="questionCounter">1 / 10</div>
+      </div>
+      <div class="learn-grid">
+        <aside class="question-list" id="questionList"></aside>
+        <article class="question-detail" id="questionDetail"></article>
+      </div>
+    </section>
+
+    <section id="practiceStage" class="stage-panel">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">STAGE 02</div>
+          <h3>Practice in the simulated terminal</h3>
+          <p>Paste a solution command or type your own. Execute with Enter. The visualizer updates immediately.</p>
+        </div>
+        <div class="practice-tools">
+          <button id="copySolutionBtn" class="btn primary">Copy question solution</button>
+          <button id="clearTerminalBtn" class="btn ghost">Clear terminal</button>
+        </div>
+      </div>
+
+      <div class="practice-layout">
+        <aside class="selected-task card" id="selectedTask"></aside>
+
+        <section class="terminal card">
+          <div class="window-bar">
+            <span class="window-dot red"></span><span class="window-dot yellow"></span><span
+              class="window-dot green"></span>
+            <strong>student@linux-lab — simulated terminal</strong>
+            <span class="terminal-status" id="terminalStatus">READY</span>
+          </div>
+          <div id="terminalOutput" class="terminal-output" aria-live="polite"></div>
+          <div class="terminal-input-row">
+            <span id="prompt" class="prompt">student@linux-lab:~$</span>
+            <input id="terminalInput" autocomplete="off" spellcheck="false" aria-label="Terminal input"
+              placeholder="Type a Linux command (e.g. ls, pwd, mkdir...) or click ▶ Run on any step" />
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section id="reviewStage" class="stage-panel">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">STAGE 03</div>
+          <h3>Visualizer & command coverage</h3>
+          <p>Understand the current simulated Linux state and see which commands you have practiced.</p>
+        </div>
+      </div>
+      <div id="reviewSummary" class="review-summary"></div>
+    </section>
+
+    <section class="visualizer-wrap" id="visualizerSection">
+      <!-- Dynamic Question Focus Banner -->
+      <div class="question-focus-banner" id="questionFocusBanner">
+        <div class="focus-banner-content">
+          <div class="focus-pill" id="focusPill">🎯 Question Focus: Q1</div>
+          <div class="focus-details">
+            <strong id="focusTitle">Exploring Your Linux Location</strong>
+            <span id="focusDesc">Observing working directory navigation and filesystem hierarchy.</span>
+          </div>
+        </div>
+        <div class="focus-tags" id="focusTags">
+          <span class="tag active-tag">Filesystem</span>
+          <span class="tag">Navigation</span>
+        </div>
+      </div>
+
+      <div class="visualizer-header">
+        <div>
+          <div class="eyebrow">LIVE STATE</div>
+          <h3>Linux visualizer</h3>
+          <p id="visualizerCaption">The panels below represent the simulated machine — not your real filesystem.</p>
+        </div>
+        <div class="state-badges" id="stateBadges"></div>
+      </div>
+
+      <div class="visualizer-grid">
+        <section class="viz-card filesystem-card" id="cardFilesystem">
+          <div class="viz-title">
+            <span>📁</span>
+            <div><b>Filesystem</b><small>Virtual working directory tree (click any file to inspect)</small></div>
+            <div class="viz-card-badge" id="fsBadge">/home/student</div>
+          </div>
+          <div id="fileTree" class="file-tree"></div>
+        </section>
+
+        <section class="viz-card identity-card" id="cardIdentity">
+          <div class="viz-title">
+            <span>👤</span>
+            <div><b>Identity & permissions</b><small>Owner • group • rwx • octal decoder</small></div>
+            <div class="viz-card-badge" id="identityBadge">student (1000)</div>
+          </div>
+          <div id="identityPanel"></div>
+        </section>
+
+        <section class="viz-card packages-card" id="cardPackages">
+          <div class="viz-title">
+            <span>📦</span>
+            <div><b>Packages</b><small>APT simulation & cache</small></div>
+            <div class="viz-card-badge" id="pkgBadge">APT Ready</div>
+          </div>
+          <div id="packagePanel"></div>
+        </section>
+
+        <section class="viz-card env-card" id="cardEnv">
+          <div class="viz-title">
+            <span>🌱</span>
+            <div><b>Environment</b><small>Shell variables ($HOME, $USER...)</small></div>
+            <div class="viz-card-badge" id="envBadge">5 vars</div>
+          </div>
+          <div id="envPanel"></div>
+        </section>
+
+        <section style="display: none;" class="viz-card history-card" id="cardHistory">
+          <div class="viz-title">
+            <span>⌁</span>
+            <div><b>Command timeline</b><small>What you executed (history)</small></div>
+            <div class="viz-card-badge" id="historyBadge">0 commands</div>
+          </div>
+          <div id="historyPanel"></div>
+        </section>
+
+        <section style="display: none;" class="viz-card event-card" id="cardEvent">
+          <div class="viz-title">
+            <span>⚡</span>
+            <div><b>Latest event</b><small>Why the visualizer changed</small></div>
+            <div class="viz-card-badge" id="eventBadge">Live</div>
+          </div>
+          <div id="eventPanel"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <!-- File Preview Modal / Inspector -->
+  <div id="fileModal" class="file-modal" style="display: none;">
+    <div class="file-modal-backdrop" id="fileModalBackdrop"></div>
+    <div class="file-modal-content">
+      <div class="file-modal-header">
+        <div class="file-modal-title">
+          <span id="fileModalIcon">📄</span>
+          <div>
+            <h4 id="fileModalName">filename.txt</h4>
+            <small id="fileModalPath">/home/student/filename.txt</small>
+          </div>
+        </div>
+        <button class="file-modal-close" id="fileModalClose">&times;</button>
+      </div>
+      <div class="file-modal-meta">
+        <div class="meta-item"><span>Type:</span> <b id="fileModalType">Regular file</b></div>
+        <div class="meta-item"><span>Size:</span> <b id="fileModalSize">0 bytes</b></div>
+        <div class="meta-item"><span>Owner:</span> <b id="fileModalOwner">student:student</b></div>
+        <div class="meta-item"><span>Mode:</span> <b id="fileModalMode">-rw-r--r-- (644)</b></div>
+      </div>
+      <div class="file-modal-body">
+        <div class="file-content-label">File Content:</div>
+        <pre id="fileModalContent" class="file-content-preview">(empty file)</pre>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>Linux Command Playground</span>
+    <span>100% simulated • no real file access • HTML + CSS + JavaScript</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
