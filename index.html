@@ -48,7 +48,7 @@
           <h3>Questions & command explanations</h3>
           <p>Choose a question. Read the goal, understand the commands, then copy them into the simulated terminal.</p>
         </div>
-        <div class="question-counter" id="questionCounter">1 / 10</div>
+        <div class="question-counter" id="questionCounter" style="display: none;">1 / 14</div>
       </div>
       <div class="learn-grid">
         <aside class="question-list" id="questionList"></aside>
@@ -144,23 +144,25 @@
           <div id="identityPanel"></div>
         </section>
 
-        <section class="viz-card packages-card" id="cardPackages">
-          <div class="viz-title">
-            <span>📦</span>
-            <div><b>Packages</b><small>APT simulation & cache</small></div>
-            <div class="viz-card-badge" id="pkgBadge">APT Ready</div>
-          </div>
-          <div id="packagePanel"></div>
-        </section>
+        <div class="viz-stack-col">
+          <section class="viz-card packages-card" id="cardPackages">
+            <div class="viz-title">
+              <span>📦</span>
+              <div><b>Packages</b><small>APT simulation & cache</small></div>
+              <div class="viz-card-badge" id="pkgBadge">APT Ready</div>
+            </div>
+            <div id="packagePanel"></div>
+          </section>
 
-        <section class="viz-card env-card" id="cardEnv">
-          <div class="viz-title">
-            <span>🌱</span>
-            <div><b>Environment</b><small>Shell variables ($HOME, $USER...)</small></div>
-            <div class="viz-card-badge" id="envBadge">5 vars</div>
-          </div>
-          <div id="envPanel"></div>
-        </section>
+          <section class="viz-card env-card" id="cardEnv">
+            <div class="viz-title">
+              <span>🌱</span>
+              <div><b>Environment</b><small>Shell variables ($HOME, $USER...)</small></div>
+              <div class="viz-card-badge" id="envBadge">5 vars</div>
+            </div>
+            <div id="envPanel"></div>
+          </section>
+        </div>
 
         <section style="display: none;" class="viz-card history-card" id="cardHistory">
           <div class="viz-title">
@@ -217,7 +219,8 @@
       <div class="welcome-modal-icon">🐧</div>
       <div class="welcome-modal-badge">FIRST TIME HERE?</div>
       <h3>Are you using the site for first time?</h3>
-      <p>We've prepared a quick 9-step interactive guided walkthrough to help you navigate the playground, practice commands, and understand the live Linux visualizer.</p>
+      <p>We've prepared a quick 9-step interactive guided walkthrough to help you navigate the playground, practice
+        commands, and understand the live Linux visualizer.</p>
       <div class="welcome-modal-actions">
         <button id="welcomeNoBtn" class="btn ghost welcome-btn">No, I know my way</button>
         <button id="welcomeYesBtn" class="btn primary welcome-btn">Yes, start guide 🚀</button>
@@ -235,7 +238,7 @@
         <button class="tour-close-btn" id="tourCloseBtn" title="Exit guide">&times;</button>
       </div>
       <h4 id="tourTitle" class="tour-title">Question & Topic Sidebar</h4>
-      <p id="tourText" class="tour-text">Browse through 10 hands-on questions categorized under syllabus topics.</p>
+      <p id="tourText" class="tour-text">Browse through 14 hands-on questions categorized under syllabus topics.</p>
       <div class="tour-dots" id="tourDots"></div>
       <div class="tour-card-actions">
         <button id="tourSkipBtn" class="btn ghost tour-skip-btn">Skip tour</button>

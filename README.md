@@ -7,11 +7,11 @@ An interactive, browser-based Linux learning sandbox and real-time visualizer. S
 ## 🌟 Key Features
 
 - **100% Client-Side & Safe**: Runs entirely in modern browsers using vanilla HTML, CSS, and JavaScript. No backend, Node.js runtime, Docker, or real system access required.
-- **Curriculum-Aligned Learning (10 Questions)**: Structured exercises grouped under 4 core topics:
-  - *Introduction To Linux & Linux Architecture*
-  - *Linux File System Structure*
-  - *Understanding Permissions and Ownership*
-  - *Package Management and Software Installation*
+- **Curriculum-Aligned Learning (14 Hands-On Questions)**: Structured exercises grouped under 4 core topics:
+  - *Introduction To Linux & Linux Architecture* (Q1)
+  - *Linux File System Structure* (Q2–Q3)
+  - *Understanding Permissions and Ownership* (Q4–Q9: basic chmod/rwx, chown/chgrp/sudo, private 600 vs public 644, executable scripts +x/755, directory modes 700/750/755 & ls -ld, and recursive team permissions chown -R / chmod -R 775)
+  - *Package Management and Software Installation* (Q10–Q14: APT, user accounts, groups, environment variables, and final mini project)
 - **Three Progressive Stages**:
   1. **01 Learn**: Read clear task objectives, command explanations, and verified solutions.
   2. **02 Practice**: Execute commands in a simulated CLI with command history (Up/Down arrows) and one-click `▶ Run` buttons.

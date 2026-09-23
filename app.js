@@ -326,6 +326,255 @@ const questions = [
   },
   {
     id: 6,
+    title: "Secure Sensitive Files with Private Permissions",
+    topic: "Understanding Permissions and Ownership",
+    subtopic: "Protecting Confidential Files (chmod 600 & go-rwx)",
+    focus: "touch • echo • ls -l • chmod 600 • chmod go-rwx • chmod 644",
+    focusArea: "identity",
+    focusSubsystem: "File Permissions (Private 600 vs Public 644)",
+    focusDesc: "Learn how to protect passwords, keys, and environment secrets using restrictive octal (600) and symbolic (go-rwx) modes.",
+    focusTags: ["chmod 600", "chmod 644", "chmod go-rwx", "Security"],
+    highlightTarget: "app-secret.env",
+    tasks: [
+      "Create a simulated confidential secrets file named app-secret.env and write an API secret key into it using echo 'API_SECRET_KEY=supersecret123' > app-secret.env.",
+      "Inspect its default permissions with ls -l app-secret.env — notice that other users and group members can read it (-rw-r--r-- / 644).",
+      "Lock the file down so ONLY the owner can read and write it using numeric mode chmod 600 app-secret.env (-rw-------).",
+      "Inspect the secured file permissions with ls -l app-secret.env to verify that group and others have zero permissions (---).",
+      "Practice the equivalent symbolic command chmod go-rwx app-secret.env to explicitly strip all read, write, and execute permissions from group (g) and others (o).",
+      "Reset the file back to standard readable mode with chmod 644 app-secret.env and confirm the change with ls -l app-secret.env.",
+    ],
+    commands: [
+      [
+        "touch app-secret.env",
+        "Create the secret configuration file.",
+        "An empty file named app-secret.env is created in your working directory.",
+      ],
+      [
+        "echo 'API_SECRET_KEY=supersecret123' > app-secret.env",
+        "Write secret key into the file.",
+        "The confidential API key is written into app-secret.env.",
+      ],
+      [
+        "ls -l app-secret.env",
+        "Inspect default permissions.",
+        "Notice -rw-r--r-- (644): group and others currently have read access.",
+      ],
+      [
+        "chmod 600 app-secret.env",
+        "Lock file to owner-only read/write.",
+        "Permissions change to -rw------- (600); all group and others access is blocked.",
+      ],
+      [
+        "ls -l app-secret.env",
+        "Verify private permissions.",
+        "The Mode Decoder and terminal show only the owner has read and write access.",
+      ],
+      [
+        "chmod go-rwx app-secret.env",
+        "Symbolically remove group & other access.",
+        "Explicitly removes all permissions (r, w, x) from group and others.",
+      ],
+      [
+        "chmod 644 app-secret.env",
+        "Restore standard read permissions.",
+        "Permissions return to -rw-r--r-- (644) so team members can read the file.",
+      ],
+      [
+        "ls -l app-secret.env",
+        "Confirm restored permissions.",
+        "The terminal confirms the permissions are back to 644.",
+      ],
+    ],
+  },
+  {
+    id: 7,
+    title: "Make Shell Scripts Executable",
+    topic: "Understanding Permissions and Ownership",
+    subtopic: "Executable Bit & Script Permissions (chmod +x vs 755)",
+    focus: "touch • echo • ls -l • chmod +x • chmod go-x • chmod 755",
+    focusArea: "identity",
+    focusSubsystem: "Executable Bit (chmod +x, go-x, 755)",
+    focusDesc: "Understand why new scripts cannot run until the execute (x) bit is granted, and compare chmod +x against chmod 755.",
+    focusTags: ["chmod +x", "chmod go-x", "chmod 755", "Scripts"],
+    highlightTarget: "deploy.sh",
+    tasks: [
+      "Create a deployment script named deploy.sh using touch deploy.sh and write a message into it with echo 'echo \"Deploying application to production...\"' > deploy.sh.",
+      "Inspect its default permissions with ls -l deploy.sh — observe that freshly created files do not have the execute (x) bit enabled.",
+      "Grant execution privileges to all users using the standard Linux shortcut chmod +x deploy.sh.",
+      "Inspect deploy.sh with ls -l deploy.sh to see the executable mode (-rwxr-xr-x / 755).",
+      "Restrict execute privileges so that ONLY the file owner can execute the script using symbolic mode chmod go-x deploy.sh.",
+      "Verify that group and others lost execution access with ls -l deploy.sh (-rwxr--r-- / 744).",
+      "Set standard production executable script permissions explicitly using octal mode chmod 755 deploy.sh and verify with ls -l deploy.sh.",
+    ],
+    commands: [
+      [
+        "touch deploy.sh",
+        "Create the deployment script.",
+        "An empty deploy.sh script is created.",
+      ],
+      [
+        "echo 'echo \"Deploying application to production...\"' > deploy.sh",
+        "Write script content.",
+        "deploy.sh now contains an echo command to run.",
+      ],
+      [
+        "ls -l deploy.sh",
+        "Check initial permissions.",
+        "Shows -rw-r--r-- (644): execute bit (x) is not set yet.",
+      ],
+      [
+        "chmod +x deploy.sh",
+        "Add execute permission for all.",
+        "Adds execute bit (x) to user, group, and others.",
+      ],
+      [
+        "ls -l deploy.sh",
+        "Verify executable flag.",
+        "Notice the 'x' bits appear: -rwxr-xr-x.",
+      ],
+      [
+        "chmod go-x deploy.sh",
+        "Revoke execute from group and others.",
+        "Removes execute (x) from group and others, leaving only the owner able to run it.",
+      ],
+      [
+        "ls -l deploy.sh",
+        "Inspect owner-only execute mode.",
+        "The mode is now -rwxr--r-- (744).",
+      ],
+      [
+        "chmod 755 deploy.sh",
+        "Set explicit 755 permissions.",
+        "Standard script permissions: owner has rwx, group and others have r-x.",
+      ],
+      [
+        "ls -l deploy.sh",
+        "Verify final script permissions.",
+        "The Mode Decoder shows 755: rwxr-xr-x.",
+      ],
+    ],
+  },
+  {
+    id: 8,
+    title: "Directory Permissions & Access Control",
+    topic: "Understanding Permissions and Ownership",
+    subtopic: "Directory Access Bits (chmod 700 / 750 / 755 & ls -ld)",
+    focus: "mkdir • touch • ls -ld • chmod 700 • chmod 750 • chmod 755",
+    focusArea: "identity",
+    focusSubsystem: "Directory Permissions (rwx on Directories & ls -ld)",
+    focusDesc: "Discover what read, write, and execute bits mean on directories, and practice inspecting directory modes with ls -ld.",
+    focusTags: ["Directory Modes", "ls -ld", "chmod 700", "chmod 750", "chmod 755"],
+    highlightTarget: "secure-vault",
+    tasks: [
+      "Create a confidential directory named secure-vault using mkdir secure-vault and create an internal file touch secure-vault/keys.txt inside it.",
+      "Inspect the permissions of the directory itself using the directory inspection flag ls -ld secure-vault.",
+      "Lock the folder completely so ONLY the owner can enter (traverse with x) and list files (r) using numeric chmod 700 secure-vault (drwx------).",
+      "Verify that group and others have zero access to the directory using ls -ld secure-vault.",
+      "Grant team group members read and traverse permissions (r-x) while keeping external others completely locked out using chmod 750 secure-vault (drwxr-x---).",
+      "Confirm the group-accessible mode with ls -ld secure-vault.",
+      "Restore standard open directory permissions using chmod 755 secure-vault and verify the final mode with ls -ld secure-vault.",
+    ],
+    commands: [
+      [
+        "mkdir secure-vault",
+        "Create the private directory.",
+        "The secure-vault directory appears in your filesystem.",
+      ],
+      [
+        "touch secure-vault/keys.txt",
+        "Create a file inside secure-vault.",
+        "keys.txt is stored inside the secure folder.",
+      ],
+      [
+        "ls -ld secure-vault",
+        "Inspect directory permissions.",
+        "Using -ld shows the directory entry itself rather than its contents.",
+      ],
+      [
+        "chmod 700 secure-vault",
+        "Restrict directory to owner only.",
+        "Permissions become drwx------ (700); others cannot list or cd into this folder.",
+      ],
+      [
+        "ls -ld secure-vault",
+        "Verify private directory mode.",
+        "The Mode Decoder and terminal show 700 (drwx------).",
+      ],
+      [
+        "chmod 750 secure-vault",
+        "Allow group read & traverse access.",
+        "Permissions become drwxr-x--- (750); group members can read and cd, others cannot.",
+      ],
+      [
+        "ls -ld secure-vault",
+        "Verify group-protected mode.",
+        "The terminal confirms mode 750 (drwxr-x---).",
+      ],
+      [
+        "chmod 755 secure-vault",
+        "Restore standard directory permissions.",
+        "Owner gets rwx; group and others get r-x (drwxr-xr-x).",
+      ],
+      [
+        "ls -ld secure-vault",
+        "Confirm standard directory mode.",
+        "The directory is verified as 755 (drwxr-xr-x).",
+      ],
+    ],
+  },
+  {
+    id: 9,
+    title: "Recursive Ownership & Team Permissions",
+    topic: "Understanding Permissions and Ownership",
+    subtopic: "Shared Team Directories (chown -R & chmod -R 775)",
+    focus: "mkdir • touch • sudo groupadd • chown -R • chmod -R • ls -la",
+    focusArea: "identity",
+    focusSubsystem: "Recursive Ownership & Modes (chown -R & chmod -R)",
+    focusDesc: "Set up a shared team workspace, assign user:group ownership recursively, and configure group-writable 775 permissions.",
+    focusTags: ["chown -R", "chmod -R", "user:group", "chmod 775"],
+    highlightTarget: "team-share",
+    tasks: [
+      "Create a shared team directory team-share using mkdir team-share and add two project files inside it: touch team-share/task.txt team-share/build.sh.",
+      "Create a dedicated project group named devteam using sudo groupadd devteam.",
+      "Transfer ownership of team-share and all files inside it to user student and group devteam in one step using recursive ownership: sudo chown -R student:devteam team-share.",
+      "Grant team members write access to all files and directories recursively using sudo chmod -R 775 team-share (rwxrwxr-x).",
+      "Inspect the directory contents and child file permissions using ls -la team-share to verify that every item belongs to student:devteam and is group-writable.",
+    ],
+    commands: [
+      [
+        "mkdir team-share",
+        "Create shared team folder.",
+        "A directory named team-share is created.",
+      ],
+      [
+        "touch team-share/task.txt team-share/build.sh",
+        "Create files in the shared folder.",
+        "task.txt and build.sh appear inside team-share.",
+      ],
+      [
+        "sudo groupadd devteam",
+        "Create devteam group.",
+        "The devteam group is registered in the system.",
+      ],
+      [
+        "sudo chown -R student:devteam team-share",
+        "Recursively change user and group.",
+        "Both team-share and all its nested files are assigned to student:devteam.",
+      ],
+      [
+        "sudo chmod -R 775 team-share",
+        "Recursively apply 775 permissions.",
+        "Owner and group both get full rwx (read, write, execute); others get r-x.",
+      ],
+      [
+        "ls -la team-share",
+        "Verify recursive team permissions.",
+        "All files show student:devteam ownership and group write permissions.",
+      ],
+    ],
+  },
+  {
+    id: 10,
     title: "Install and Inspect Software with APT",
     topic: "Package Management and Software Installation",
     subtopic: "Installing and Updating Software with APT",
@@ -390,7 +639,7 @@ const questions = [
     ],
   },
   {
-    id: 7,
+    id: 11,
     title: "Create and Manage a User",
     topic: "Package Management and Software Installation",
     subtopic: "Working with Users (adduser, su, passwd)",
@@ -441,7 +690,7 @@ const questions = [
     ],
   },
   {
-    id: 8,
+    id: 12,
     title: "Create a Developer Group",
     topic: "Package Management and Software Installation",
     subtopic: "Working with Groups (groupadd, usermod)",
@@ -481,7 +730,7 @@ const questions = [
     ],
   },
   {
-    id: 9,
+    id: 13,
     title: "Work with Environment Variables",
     topic: "Package Management and Software Installation",
     subtopic: "Working with Environment Variables (export, unset, env)",
@@ -525,7 +774,7 @@ const questions = [
     ],
   },
   {
-    id: 10,
+    id: 14,
     title: "Final Mini Project — Linux Developer Workspace",
     topic: "Package Management and Software Installation",
     subtopic: "Integrated Final Project (Capstone Lab)",
@@ -620,6 +869,7 @@ const commandCoverage = [
   "ls -l",
   "ls -a",
   "ls -la",
+  "ls -ld",
   "cd",
   "cd ..",
   "cd ~",
@@ -639,7 +889,9 @@ const commandCoverage = [
   "id",
   "groups",
   "chmod",
+  "chmod -R",
   "chown",
+  "chown -R",
   "chgrp",
   "sudo",
   "apt update",
@@ -785,7 +1037,8 @@ function modeString(mode, type = "file") {
 }
 
 function parseMode(s) {
-  const n = s.split("").map(Number);
+  if (typeof s === "string" && s.length === 4 && s[0] === "0") s = s.slice(1);
+  const n = String(s).split("").map(Number);
   if (n.length !== 3 || n.some(isNaN)) return null;
   return n[0] * 64 + n[1] * 8 + n[2];
 }
@@ -815,9 +1068,18 @@ function mark(command) {
   if (base.startsWith("export ")) key = "export";
   if (base.startsWith("unset ")) key = "unset";
   if (base.startsWith("source ")) key = "source";
-  if (base.startsWith("chmod ")) key = "chmod";
-  if (base.startsWith("chown ")) key = "chown";
-  if (base.startsWith("chgrp ")) key = "chgrp";
+  if (base.startsWith("chmod -R")) {
+    state.covered.add("chmod -R");
+    key = "chmod";
+  } else if (base.startsWith("chmod ")) key = "chmod";
+  if (base.startsWith("chown -R")) {
+    state.covered.add("chown -R");
+    key = "chown";
+  } else if (base.startsWith("chown ")) key = "chown";
+  if (base.startsWith("chgrp -R")) {
+    state.covered.add("chgrp -R");
+    key = "chgrp";
+  } else if (base.startsWith("chgrp ")) key = "chgrp";
   if (base.startsWith("usermod ")) key = "usermod -aG";
   if (base.startsWith("groupadd ")) key = "groupadd";
   if (base.startsWith("adduser ")) key = "adduser";
@@ -842,7 +1104,10 @@ function mark(command) {
   if (command.trim().startsWith("mv ")) key = "mv";
   if (command.trim().startsWith("rm ")) key = "rm";
   if (command.trim().startsWith("rmdir ")) key = "rmdir";
-  if (command.trim().startsWith("ls -la")) key = "ls -la";
+  if (command.trim().startsWith("ls -ld")) {
+    state.covered.add("ls -ld");
+    key = "ls -l";
+  } else if (command.trim().startsWith("ls -la")) key = "ls -la";
   else if (command.trim().startsWith("ls -l")) key = "ls -l";
   else if (command.trim().startsWith("ls -a")) key = "ls -a";
   else if (command.trim() === "ls") key = "ls";
@@ -945,19 +1210,20 @@ function executeSingle(raw) {
   }
 
   if (base === "ls") {
-    let opts = { long: false, all: false };
+    let opts = { long: false, all: false, dir: false };
     let target = state.currentPath;
     words.slice(1).forEach((w) => {
       if (w.startsWith("-")) {
         opts.long ||= w.includes("l");
         opts.all ||= w.includes("a");
+        opts.dir ||= w.includes("d");
       } else target = normalize(w);
     });
     if (!exists(target)) {
       output(`ls: cannot access '${target}': No such file or directory`, "error");
       return false;
     }
-    if (state.files[target].type === "file") {
+    if (state.files[target].type === "file" || opts.dir) {
       const o = state.files[target];
       output(
         opts.long
@@ -1239,62 +1505,91 @@ function executeSingle(raw) {
   }
 
   if (base === "chmod") {
-    const args = words.slice(1);
+    let args = words.slice(1);
+    let recursive = false;
+    if (args[0] === "-R" || args[0] === "-r") {
+      recursive = true;
+      args = args.slice(1);
+    }
     if (args.length < 2) {
-      output("chmod: usage: chmod MODE FILE", "error");
+      output("chmod: usage: chmod [-R] MODE FILE...", "error");
       return false;
     }
-    const modeArg = args[0],
-      p = normalize(args[1]);
-    if (!exists(p)) {
-      output(`chmod: cannot access '${args[1]}'`, "error");
+    const modeArg = args[0];
+    const targets = args.slice(1);
+    const isNumeric = /^\d{3,4}$/.test(modeArg);
+    const numMode = isNumeric ? parseMode(modeArg.slice(-3)) : null;
+    const symMatch = !isNumeric ? modeArg.match(/^([ugoa]*)([+-])([rwx]+)$/) : null;
+    if (!isNumeric && !symMatch) {
+      output("chmod: unsupported symbolic mode in simulator", "error");
       return false;
     }
-    if (/^\d{3}$/.test(modeArg)) {
-      state.files[p].mode = parseMode(modeArg);
-    } else {
-      const m = modeArg.match(/^([ugoa]*)([+-])([rwx]+)$/);
-      if (!m) {
-        output("chmod: unsupported symbolic mode in simulator", "error");
+
+    const applyMode = (targetPath) => {
+      if (!exists(targetPath)) return false;
+      if (isNumeric) {
+        state.files[targetPath].mode = numMode;
+      } else {
+        let mask = 0;
+        for (const c of symMatch[3]) mask |= c === "r" ? 4 : c === "w" ? 2 : 1;
+        let groups = symMatch[1] || "a";
+        for (const g of groups) {
+          if (g === "u")
+            state.files[targetPath].mode =
+              symMatch[2] === "+"
+                ? state.files[targetPath].mode | (mask << 6)
+                : state.files[targetPath].mode & ~(mask << 6);
+          if (g === "g")
+            state.files[targetPath].mode =
+              symMatch[2] === "+"
+                ? state.files[targetPath].mode | (mask << 3)
+                : state.files[targetPath].mode & ~(mask << 3);
+          if (g === "o")
+            state.files[targetPath].mode =
+              symMatch[2] === "+"
+                ? state.files[targetPath].mode | mask
+                : state.files[targetPath].mode & ~mask;
+          if (g === "a")
+            state.files[targetPath].mode =
+              symMatch[2] === "+"
+                ? state.files[targetPath].mode | mask | (mask << 3) | (mask << 6)
+                : state.files[targetPath].mode & ~(mask | (mask << 3) | (mask << 6));
+        }
+      }
+      return true;
+    };
+
+    let lastP = null;
+    for (const t of targets) {
+      const p = normalize(t);
+      if (!exists(p)) {
+        output(`chmod: cannot access '${t}': No such file or directory`, "error");
         return false;
       }
-      let mask = 0;
-      for (const c of m[3]) mask |= c === "r" ? 4 : c === "w" ? 2 : 1;
-      let groups = m[1] || "a";
-      for (const g of groups) {
-        if (g === "u")
-          state.files[p].mode =
-            m[2] === "+"
-              ? state.files[p].mode | (mask << 6)
-              : state.files[p].mode & ~(mask << 6);
-        if (g === "g")
-          state.files[p].mode =
-            m[2] === "+"
-              ? state.files[p].mode | (mask << 3)
-              : state.files[p].mode & ~(mask << 3);
-        if (g === "o")
-          state.files[p].mode =
-            m[2] === "+"
-              ? state.files[p].mode | mask
-              : state.files[p].mode & ~mask;
-        if (g === "a")
-          state.files[p].mode =
-            m[2] === "+"
-              ? state.files[p].mode | mask | (mask << 3) | (mask << 6)
-              : state.files[p].mode & ~(mask | (mask << 3) | (mask << 6));
+      applyMode(p);
+      lastP = p;
+      if (recursive && state.files[p].type === "dir") {
+        const prefix = p === "/" ? "/" : p + "/";
+        for (const childPath of Object.keys(state.files)) {
+          if (childPath.startsWith(prefix)) {
+            applyMode(childPath);
+          }
+        }
       }
     }
-    state.lastPermissionTarget = p;
-    state.lastUpdatedSubsystem = "identity";
-    state.lastUpdatedItem = p;
-    output(
-      `${p}: ${modeString(state.files[p].mode, state.files[p].type)} (octal: ${(state.files[p].mode).toString(8)})`,
-      "success",
-    );
-    event(
-      `Permissions changed for ${p} → ${modeString(state.files[p].mode, state.files[p].type)}`,
-      raw.trim(),
-    );
+    if (lastP) {
+      state.lastPermissionTarget = lastP;
+      state.lastUpdatedSubsystem = "identity";
+      state.lastUpdatedItem = lastP;
+      output(
+        `${lastP}: ${modeString(state.files[lastP].mode, state.files[lastP].type)} (octal: ${(state.files[lastP].mode).toString(8)})`,
+        "success",
+      );
+      event(
+        `Permissions changed for ${lastP} → ${modeString(state.files[lastP].mode, state.files[lastP].type)}`,
+        raw.trim(),
+      );
+    }
     return true;
   }
 
@@ -1398,61 +1693,108 @@ function executeSingle(raw) {
   }
 
   if (base === "chown") {
-    const args = words.slice(1);
+    let args = words.slice(1);
+    let recursive = false;
+    if (args[0] === "-R" || args[0] === "-r") {
+      recursive = true;
+      args = args.slice(1);
+    }
     if (args.length < 2) {
       output("chown: missing operand", "error");
       return false;
     }
-    let ownerGroup = args[0],
-      p = normalize(args[1]);
-    if (!exists(p)) {
-      output(`chown: cannot access '${args[1]}'`, "error");
-      return false;
-    }
+    let ownerGroup = args[0];
+    const targets = args.slice(1);
     const [owner, grp] = ownerGroup.split(":");
     if (owner && !state.users[owner]) {
       output(`chown: unknown user '${owner}'`, "error");
       return false;
     }
-    state.files[p].owner = owner || state.files[p].owner;
-    if (grp) {
-      if (!state.groups[grp]) {
-        output(`chown: unknown group '${grp}'`, "error");
+    if (grp && !state.groups[grp]) {
+      output(`chown: unknown group '${grp}'`, "error");
+      return false;
+    }
+
+    const applyOwnership = (targetPath) => {
+      if (!exists(targetPath)) return false;
+      if (owner) state.files[targetPath].owner = owner;
+      if (grp) state.files[targetPath].group = grp;
+      return true;
+    };
+
+    let lastP = null;
+    for (const t of targets) {
+      const p = normalize(t);
+      if (!exists(p)) {
+        output(`chown: cannot access '${t}': No such file or directory`, "error");
         return false;
       }
-      state.files[p].group = grp;
+      applyOwnership(p);
+      lastP = p;
+      if (recursive && state.files[p].type === "dir") {
+        const prefix = p === "/" ? "/" : p + "/";
+        for (const childPath of Object.keys(state.files)) {
+          if (childPath.startsWith(prefix)) {
+            applyOwnership(childPath);
+          }
+        }
+      }
     }
-    state.lastUpdatedSubsystem = "identity";
-    state.lastUpdatedItem = p;
-    output(
-      `Ownership updated: ${state.files[p].owner}:${state.files[p].group}`,
-      "success",
-    );
-    event(`Ownership changed for ${p}`, raw.trim());
+    if (lastP) {
+      state.lastPermissionTarget = lastP;
+      state.lastUpdatedSubsystem = "identity";
+      state.lastUpdatedItem = lastP;
+      output(
+        `Ownership updated: ${state.files[lastP].owner}:${state.files[lastP].group}`,
+        "success",
+      );
+      event(`Ownership changed for ${lastP}`, raw.trim());
+    }
     return true;
   }
 
   if (base === "chgrp") {
-    const args = words.slice(1);
+    let args = words.slice(1);
+    let recursive = false;
+    if (args[0] === "-R" || args[0] === "-r") {
+      recursive = true;
+      args = args.slice(1);
+    }
     if (args.length < 2) {
       output("chgrp: missing operand", "error");
       return false;
     }
-    const group = args[0],
-      p = normalize(args[1]);
+    const group = args[0];
+    const targets = args.slice(1);
     if (!state.groups[group]) {
       output(`chgrp: invalid group '${group}'`, "error");
       return false;
     }
-    if (!exists(p)) {
-      output(`chgrp: cannot access '${args[1]}'`, "error");
-      return false;
+    let lastP = null;
+    for (const t of targets) {
+      const p = normalize(t);
+      if (!exists(p)) {
+        output(`chgrp: cannot access '${t}': No such file or directory`, "error");
+        return false;
+      }
+      state.files[p].group = group;
+      lastP = p;
+      if (recursive && state.files[p].type === "dir") {
+        const prefix = p === "/" ? "/" : p + "/";
+        for (const childPath of Object.keys(state.files)) {
+          if (childPath.startsWith(prefix)) {
+            state.files[childPath].group = group;
+          }
+        }
+      }
     }
-    state.files[p].group = group;
-    state.lastUpdatedSubsystem = "identity";
-    state.lastUpdatedItem = p;
-    output(`Group changed to ${group}`, "success");
-    event(`Group ownership changed for ${p} → ${group}`, raw.trim());
+    if (lastP) {
+      state.lastPermissionTarget = lastP;
+      state.lastUpdatedSubsystem = "identity";
+      state.lastUpdatedItem = lastP;
+      output(`Group changed to ${group}`, "success");
+      event(`Group ownership changed for ${lastP} → ${group}`, raw.trim());
+    }
     return true;
   }
 
@@ -1902,6 +2244,7 @@ function renderQuestionFocusBanner() {
 
 function renderQuestionList() {
   const el = document.getElementById("questionList");
+  const prevScroll = el ? el.scrollTop : 0;
   el.innerHTML = "";
   let lastTopic = null;
 
@@ -1935,23 +2278,26 @@ function renderQuestionList() {
   });
   document.getElementById("questionCounter").textContent =
     `${state.selectedQuestion} / ${questions.length}`;
+  if (el) el.scrollTop = prevScroll;
 }
 
 function renderQuestionDetail() {
   const q = questions.find((x) => x.id === state.selectedQuestion);
   const el = document.getElementById("questionDetail");
-  el.innerHTML = `<div class="detail-top">
-    <div>
-      <div class="detail-topic-banner">
-        <span class="topic-tag">TOPIC: ${escapeHtml(q.topic)}</span>
-        ${q.subtopic ? `<span class="subtopic-tag">${escapeHtml(q.subtopic)}</span>` : ""}
+  el.innerHTML = `<div class="detail-header-wrap">
+    <div class="detail-top">
+      <div>
+        <div class="detail-topic-banner">
+          <span class="topic-tag">TOPIC: ${escapeHtml(q.topic)}</span>
+          ${q.subtopic ? `<span class="subtopic-tag">${escapeHtml(q.subtopic)}</span>` : ""}
+        </div>
+        <h4>Q${q.id}. ${escapeHtml(q.title)}</h4>
+        <p>Complete the task in the simulated Linux terminal. Watch the visualizer below update dynamically as each command runs.</p>
       </div>
-      <h4>Q${q.id}. ${escapeHtml(q.title)}</h4>
-      <p>Complete the task in the simulated Linux terminal. Watch the visualizer below update dynamically as each command runs.</p>
+      <span class="focus-tag">${escapeHtml(q.focus)}</span>
     </div>
-    <span class="focus-tag">${escapeHtml(q.focus)}</span>
+    <ol class="task-list">${q.tasks.map((x) => `<li>${escapeHtml(x)}</li>`).join("")}</ol>
   </div>
-  <ol class="task-list">${q.tasks.map((x) => `<li>${escapeHtml(x)}</li>`).join("")}</ol>
   <div class="solution-panel">
     <div class="solution-head">
       <b>🧩 Solution & command explanations</b>
@@ -1962,8 +2308,8 @@ function renderQuestionDetail() {
     </div>
     <div class="command-explain">
       ${q.commands
-        .map(
-          (c, index) => `
+      .map(
+        (c, index) => `
         <div class="cmd-row">
           <div class="cmd-code">
             <span class="cmd-number">${index + 1}</span>
@@ -1974,13 +2320,13 @@ function renderQuestionDetail() {
             </div>
           </div>
           <div class="cmd-why">
-            <b>Why:</b> ${c[1]}<br>
-            <b>Effect:</b> ${c[2]}
+             <div class="cmd-why-line" title="Why: ${escapeHtml(c[1])}"><span class="cmd-why-label">Why:</span> <span class="cmd-why-text">${escapeHtml(c[1])}</span></div>
+            <div class="cmd-why-line" title="Effect: ${escapeHtml(c[2])}"><span class="cmd-why-label">Effect:</span> <span class="cmd-why-text">${escapeHtml(c[2])}</span></div>
           </div>
         </div>
       `,
-        )
-        .join("")}
+      )
+      .join("")}
     </div>
   </div>`;
 
@@ -2088,7 +2434,14 @@ function renderIdentity() {
 
   const ownedFiles = Object.entries(state.files)
     .filter(([p]) => p !== "/" && p !== "/home")
-    .slice(0, 6);
+    .sort(([a], [b]) => {
+      const aHome = a.startsWith("/home/student/");
+      const bHome = b.startsWith("/home/student/");
+      if (aHome && !bHome) return -1;
+      if (!aHome && bHome) return 1;
+      return 0;
+    })
+    .slice(0, 10);
 
   el.innerHTML = `
     <div class="identity-body">
@@ -2130,23 +2483,23 @@ function renderIdentity() {
           </div>
           <div class="groups-wrap">
             ${Object.keys(state.users)
-              .map(
-                (user) => `
+      .map(
+        (user) => `
               <span class="user-chip ${user === state.currentUser ? "active-user" : ""}">
                 👤 ${user}${user === state.currentUser ? " (active)" : ""}
               </span>
             `,
-              )
-              .join("")}
+      )
+      .join("")}
             ${Object.keys(state.groups)
-              .map(
-                (grp) => `
+      .map(
+        (grp) => `
               <span class="group-chip ${u.groups.includes(grp) ? "active-member" : ""}">
                 👥 ${grp} (${state.groups[grp].members.length || (grp === "student" ? 1 : 0)})
               </span>
             `,
-              )
-              .join("")}
+      )
+      .join("")}
           </div>
         </div>
 
@@ -2155,8 +2508,8 @@ function renderIdentity() {
           <table class="permission-table">
             <tr><th>File</th><th>Owner</th><th>Group</th><th>Mode</th></tr>
             ${ownedFiles
-              .map(
-                ([p, o]) => `
+      .map(
+        ([p, o]) => `
               <tr onclick="showFileModal('${p}')" style="cursor: pointer;" title="Inspect ${basename(p)}">
                 <td>${basename(p)}</td>
                 <td>${o.owner}</td>
@@ -2164,8 +2517,8 @@ function renderIdentity() {
                 <td><span class="permission-chip">${modeString(o.mode, o.type)}</span></td>
               </tr>
             `,
-              )
-              .join("")}
+      )
+      .join("")}
           </table>
         </div>
       </div>
@@ -2189,8 +2542,8 @@ function renderPackages() {
         </b>
       </div>
       ${Object.entries(state.packages)
-        .map(
-          ([p, v]) => `
+      .map(
+        ([p, v]) => `
         <div class="pkg-row ${isUpdated && state.lastUpdatedItem === p ? "highlight-pulse" : ""}">
           <span>📦 <b>${p}</b></span>
           <span class="${v ? "status-installed" : "status-available"}">
@@ -2198,8 +2551,8 @@ function renderPackages() {
           </span>
         </div>
       `,
-        )
-        .join("")}
+      )
+      .join("")}
     </div>
   `;
 
@@ -2217,15 +2570,15 @@ function renderEnv() {
   el.innerHTML = `
     <div class="env-body">
       ${Object.entries(state.env)
-        .map(
-          ([k, v]) => `
+      .map(
+        ([k, v]) => `
         <div class="env-row ${isUpdated && state.lastUpdatedItem === k ? "highlight-pulse" : ""}">
           <span>🌱 <b>${k}</b></span>
           <small>${escapeHtml(v)}</small>
         </div>
       `,
-        )
-        .join("")}
+      )
+      .join("")}
     </div>
   `;
 
@@ -2238,16 +2591,16 @@ function renderHistory() {
   el.innerHTML = `
     <div class="history-body">
       ${state.history
-        .slice(-12)
-        .reverse()
-        .map(
-          (x, i) => `
+      .slice(-12)
+      .reverse()
+      .map(
+        (x, i) => `
         <div class="history-item" onclick="runCommand('${escapeHtml(x).replace(/'/g, "\\'")}')" style="cursor: pointer;" title="Click to re-run">
           <span style="color: #9a57c7; font-weight: bold;">${String(state.history.length - i).padStart(2, "0")}</span>  ${escapeHtml(x)}
         </div>
       `,
-        )
-        .join("") || "<div class='history-item'>No commands executed yet.</div>"}
+      )
+      .join("") || "<div class='history-item'>No commands executed yet.</div>"}
     </div>
   `;
 
@@ -2261,13 +2614,13 @@ function renderEvent() {
   el.innerHTML = `
     <div class="event-body">
       ${e
-        ? `
+      ? `
         <div class="event-main highlight-pulse">
           ⚡ <b>${escapeHtml(e.msg)}</b>
           <div class="event-command">${escapeHtml(e.cmd)} • ${e.time}</div>
         </div>
       `
-        : "<div class='event-main'>Run a command to see why the visualizer changes in real time.</div>"}
+      : "<div class='event-main'>Run a command to see why the visualizer changes in real time.</div>"}
     </div>
   `;
 }
@@ -2298,14 +2651,14 @@ function renderReview() {
     <h4>Command coverage</h4>
     <div class="coverage-grid">
       ${commandCoverage
-        .map(
-          (c) => `
+      .map(
+        (c) => `
         <div class="coverage-item ${state.covered.has(c) ? "done" : ""}">
           ${c}
         </div>
       `,
-        )
-        .join("")}
+      )
+      .join("")}
     </div>
   `;
   const stage = document.getElementById("reviewStage");
@@ -2320,6 +2673,9 @@ function showFileModal(path) {
   path = normalize(path);
   const o = state.files[path];
   if (!o) return;
+
+  state.lastPermissionTarget = path;
+  renderIdentity();
 
   const modal = document.getElementById("fileModal");
   if (!modal) return;
@@ -2479,7 +2835,7 @@ const tourSteps = [
     target: "#questionList",
     stage: "learn",
     title: "Question & Topic Sidebar (01 Learn)",
-    text: "Browse all 10 hands-on questions categorized under curriculum topics. Click on any question to load its tasks, command explanations, and verified solutions.",
+    text: "Browse all 14 hands-on questions categorized under curriculum topics. Click on any question to load its tasks, command explanations, and verified solutions.",
   },
   {
     target: "#questionDetail .detail-top",
@@ -2737,7 +3093,7 @@ function endTour() {
   unlockUserScroll();
   try {
     localStorage.setItem("linux_playground_tour_seen", "true");
-  } catch (err) {}
+  } catch (err) { }
 }
 
 function initTourAndWelcome() {
@@ -2745,7 +3101,7 @@ function initTourAndWelcome() {
   let seen = false;
   try {
     seen = localStorage.getItem("linux_playground_tour_seen") === "true";
-  } catch (err) {}
+  } catch (err) { }
 
   const welcomeModal = document.getElementById("welcomeModal");
   if (!seen && welcomeModal) {
@@ -2759,7 +3115,7 @@ function initTourAndWelcome() {
       if (welcomeModal) welcomeModal.style.display = "none";
       try {
         localStorage.setItem("linux_playground_tour_seen", "true");
-      } catch (err) {}
+      } catch (err) { }
       startTour();
     };
   }
@@ -2770,7 +3126,7 @@ function initTourAndWelcome() {
       if (welcomeModal) welcomeModal.style.display = "none";
       try {
         localStorage.setItem("linux_playground_tour_seen", "true");
-      } catch (err) {}
+      } catch (err) { }
     };
   }
 
@@ -2780,7 +3136,7 @@ function initTourAndWelcome() {
       if (welcomeModal) welcomeModal.style.display = "none";
       try {
         localStorage.setItem("linux_playground_tour_seen", "true");
-      } catch (err) {}
+      } catch (err) { }
     };
   }
 
